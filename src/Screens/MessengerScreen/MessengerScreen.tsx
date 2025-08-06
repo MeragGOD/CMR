@@ -8,7 +8,7 @@ import {
   Image,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppLayout from '../../components/AppLayout';
 import CreateMessageModal from '../../components/CreateMessageModal';
@@ -37,7 +37,7 @@ export default function MessengerScreen() {
   const [conversations, setConversations] = useState<any[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  useEffect(() => {
+  useFocusEffect(() => {
     const fetchData = async () => {
       const current = await AsyncStorage.getItem('currentUser');
       const users = await AsyncStorage.getItem('users');
@@ -51,7 +51,7 @@ export default function MessengerScreen() {
     };
 
     fetchData();
-  }, []);
+  },);
 
   return (
     <AppLayout>

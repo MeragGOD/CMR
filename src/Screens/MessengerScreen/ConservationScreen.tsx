@@ -184,9 +184,11 @@ export default function ConversationScreen() {
   return (
     <AppLayout showFloatingButton={false}>
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+  style={{ flex: 1 }}
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+>
+
         <View style={styles.container}>
           {/* Header gốc */}
           <View style={styles.headerContainer}>

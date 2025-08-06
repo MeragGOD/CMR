@@ -2,6 +2,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState } from 'react';
 import {
+  Image,
   View,
   Text,
   TextInput,
@@ -251,7 +252,11 @@ const SignUpScreen = ({ navigation }: any) => {
     return (
     <>
       <Text style={styles.title}>You are successfully registered!</Text>
-      <View style={{ height: 200, marginVertical: 20, backgroundColor: '#eaefff', borderRadius: 12 }} />
+      <Image
+        source={require('../../assets/SignUp.png')}
+        style={styles.successImage}
+        resizeMode="contain"
+      />
       <TouchableOpacity style={styles.button} onPress={handleCompleteRegistration}>
         <Text style={styles.buttonText}>Let’s Start →</Text>
       </TouchableOpacity>
@@ -314,6 +319,13 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     fontWeight: '500',
   },
+  successImage: {
+  width: '100%',
+  height: 200,
+  marginVertical: 20,
+  borderRadius: 12,
+},
+
   input: {
     borderWidth: 1,
     borderColor: '#ddd',

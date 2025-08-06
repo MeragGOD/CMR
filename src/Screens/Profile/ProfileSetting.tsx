@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppLayout from '../../components/AppLayout';
 
@@ -28,9 +28,9 @@ export default function SettingsScreen() {
     noNotiAfter9pm: false,
   });
 
-  useEffect(() => {
+  useFocusEffect(() => {
     loadSettings();
-  }, []);
+  },);
 
   const loadSettings = async () => {
     try {

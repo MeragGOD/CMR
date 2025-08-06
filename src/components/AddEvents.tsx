@@ -54,6 +54,7 @@ const AddEventModal = ({ visible, onClose }: { visible: boolean; onClose: () => 
     setFrequency('Daily');
     setRepeatDays([]);
     setRepeatEveryDay(false);
+    setRepeatTime(null);
     };
 
   const saveEvent = async () => {
@@ -78,13 +79,14 @@ const AddEventModal = ({ visible, onClose }: { visible: boolean; onClose: () => 
     description,
     repeat,
     repeatOptions: repeat
-      ? {
-          frequency,
-          days: repeatDays,
-          everyDay: repeatEveryDay,
-          time: repeatTime ? repeatTime.toISOString() : null,
-        }
-      : null,
+  ? {
+      frequency,
+      days: repeatEveryDay ? [] : repeatDays,
+      everyDay: repeatEveryDay,
+      time: repeatTime ? repeatTime.toISOString() : null,
+    }
+  : null,
+
     createdBy: currentUserEmail,
   };
 

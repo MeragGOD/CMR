@@ -27,16 +27,29 @@ export default function AllEventsScreen() {
 
         const user = JSON.parse(userStr);
         const allEvents = JSON.parse(allEventsStr);
-        const userEvents = allEvents.filter(
-          (e: any) => e.createdBy === user.email
+        const allowedEmails = [user.email];
+        if (user.role === 'Assignee' && user.leaderEmail) {
+          allowedEmails.push(user.leaderEmail);
+        }
+
+        const userEvents = allEvents.filter((e: any) =>
+          allowedEmails.includes(e.createdBy)
         );
 
+
         // Sort by date+time
-        const sorted = userEvents.sort((a: any, b: any) => {
-          const aDate = new Date(`${a.date} ${a.time}`);
-          const bDate = new Date(`${b.date} ${b.time}`);
-          return aDate.getTime() - bDate.getTime();
-        });
+        const now = Date.now();
+        const sorted = userEvents
+          .filter((e: any) => {
+            const eventTime = new Date(`${e.date} ${e.time}`).getTime();
+            return !isNaN(eventTime) && eventTime >= now; // loại bỏ sự kiện đã qua
+          })
+          .sort((a: any, b: any) => {
+            const aRemaining = new Date(`${a.date} ${a.time}`).getTime() - now;
+            const bRemaining = new Date(`${b.date} ${b.time}`).getTime() - now;
+            return aRemaining - bRemaining;
+          });
+
 
         setEvents(sorted);
       };

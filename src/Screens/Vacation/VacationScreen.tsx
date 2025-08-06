@@ -9,6 +9,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppLayout from '../../components/AppLayout';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface Request {
   type: 'Vacation' | 'Sick Leave' | 'Work remotely';
@@ -31,7 +32,7 @@ interface UserCard {
 const VacationScreen = () => {
   const [users, setUsers] = useState<UserCard[]>([]);
 
-  useEffect(() => {
+  useFocusEffect(() => {
     const loadData = async () => {
       
       const [reqStr, userStr, currentStr, membersStr] = await Promise.all([
@@ -91,7 +92,7 @@ setUsers(userList);
 };
 
     loadData();
-  }, []);
+  }, );
 
   const renderCard = (item: UserCard) => (
   <View key={item.email} style={styles.card}>

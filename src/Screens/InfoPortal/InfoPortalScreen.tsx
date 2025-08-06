@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
 import AppLayout from '../../components/AppLayout';
@@ -15,7 +15,7 @@ export default function InfoPortalScreen() {
   const [projects, setProjects] = useState<any[]>([]);
   const [growth, setGrowth] = useState<number>(0);
 
-  useEffect(() => {
+  useFocusEffect(() => {
     const fetchData = async () => {
       const userStr = await AsyncStorage.getItem('currentUser');
       const projectsStr = await AsyncStorage.getItem('projects');
@@ -23,7 +23,11 @@ export default function InfoPortalScreen() {
 
       const user = JSON.parse(userStr);
       const allProjects = JSON.parse(projectsStr);
-      const userProjects = allProjects.filter((p: any) => p.createdBy === user.email);
+      const userProjects = allProjects.filter((p: any) =>
+      p.createdBy === user.email ||
+      (p.sharedWith || []).includes(user.email)
+    );
+
 
       setCurrentUser(user);
       setProjects(userProjects);
@@ -35,7 +39,7 @@ export default function InfoPortalScreen() {
     };
 
     fetchData();
-  }, []);
+  },);
 
     const handleOpenProject = (project: any) => {
       const firstTask = (project.tasks || [])[0];

@@ -26,12 +26,8 @@ export default function CalendarScreen() {
   }, [isFocused]);
 
   useEffect(() => {
-    const filtered = allEvents.filter(e =>
-      new Date(e.date).toISOString().split('T')[0] === selectedDate
-    );
-    setEventsForDate(filtered);
-
     const grouped = groupEventsByDate(allEvents);
+    setEventsForDate(grouped[selectedDate] || []);
     const marked = buildMarkedDates(grouped);
     setMarkedDates(marked);
   }, [selectedDate, allEvents]);
@@ -60,14 +56,53 @@ export default function CalendarScreen() {
 
 
   const groupEventsByDate = (events: any[]) => {
-    const result: any = {};
+  const result: Record<string, any[]> = {};
+
+  const today = new Date();
+  const rangeDays = 60; // duyệt trong 60 ngày tới
+
+  for (let i = -30; i <= rangeDays; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    const dateStr = date.toISOString().split('T')[0];
+
     events.forEach(event => {
-      const date = new Date(event.date).toISOString().split('T')[0];
-      if (!result[date]) result[date] = [];
-      result[date].push(event);
+      const baseDateStr = new Date(event.date).toISOString().split('T')[0];
+      const baseDate = new Date(baseDateStr);
+
+      if (event.repeat && event.repeatOptions) {
+        const { frequency, days, everyDay } = event.repeatOptions;
+
+        const dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()];
+        const sameTime = event.time;
+
+        let shouldInclude = false;
+
+        if (frequency === 'Daily' && everyDay) {
+          shouldInclude = true;
+        } else if (frequency === 'Weekly' && days?.includes(dayOfWeek)) {
+          shouldInclude = true;
+        } else if (frequency === 'Monthly' && baseDate.getDate() === date.getDate()) {
+          shouldInclude = true;
+        }
+
+        if (shouldInclude) {
+          if (!result[dateStr]) result[dateStr] = [];
+          result[dateStr].push({ ...event, date: dateStr, time: sameTime });
+        }
+      } else {
+        // sự kiện không lặp
+        if (baseDateStr === dateStr) {
+          if (!result[dateStr]) result[dateStr] = [];
+          result[dateStr].push(event);
+        }
+      }
     });
-    return result;
-  };
+  }
+
+  return result;
+};
+
 
   const buildMarkedDates = (eventsByDate: any) => {
     const marked: any = {};
@@ -113,19 +148,25 @@ export default function CalendarScreen() {
   'Corporate Event': '#ec4899'// hồng
 };
 const getTimeRemaining = (event: any) => {
-  
   if (!event.time) return '';
   const eventTime = new Date(event.time).getTime();
   const now = Date.now();
   const diff = eventTime - now;
 
-  if (diff <= 0) return 'Started';
+  if (isNaN(eventTime) || diff <= 0) return 'Started';
 
-  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-  return `${hours}h ${mins}m left`;
+  const parts = [];
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0 || days > 0) parts.push(`${hours}h`);
+  parts.push(`${mins}m`);
+
+  return `${parts.join(' ')} left`;
 };
+
 
 
   return (

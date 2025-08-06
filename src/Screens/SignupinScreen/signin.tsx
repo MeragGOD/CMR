@@ -1,5 +1,5 @@
 //src/Screens/SignupinScreen/signin
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,13 +13,27 @@ import {
 import CheckBox from '@react-native-community/checkbox';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../types';
+
 
 const SignInScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+  const loadRememberedEmail = async () => {
+    const remembered = await AsyncStorage.getItem('rememberedEmail');
+    if (remembered) {
+      setEmail(remembered);
+      setRememberMe(true);
+    }
+  };
+  loadRememberedEmail();
+}, []);
 
   const handleSignIn = async () => {
   try {
@@ -35,15 +49,23 @@ const SignInScreen = () => {
     );
 
     if (matchedUser) {
-      // Lưu thông tin user hiện tại
-      await AsyncStorage.setItem('currentUser', JSON.stringify(matchedUser));
+  await AsyncStorage.setItem('currentUser', JSON.stringify(matchedUser));
 
-      // Nếu cần, có thể xử lý RememberMe ở đây
+  if (rememberMe) {
+    await AsyncStorage.setItem('rememberedEmail', email);
+  } else {
+    await AsyncStorage.removeItem('rememberedEmail');
+  }
 
-      navigation.navigate('Dashboard' as never);
-    } else {
-      alert('Invalid email or password.');
-    }
+  navigation.reset({
+    index: 0,
+    routes: [{ name: 'Main' }],
+  });
+} else {
+  alert('Invalid email or password.');
+}
+
+
   } catch (error) {
     console.error('Login failed:', error);
     alert('An error occurred during sign in.');

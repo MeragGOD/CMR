@@ -37,15 +37,26 @@ export default function EventCard({ event, onPress }: Props) {
   const { icon, color } = priorityIcon[event.priority] || priorityIcon.Medium;
 
   const getTimeRemaining = () => {
-    const eventTime = new Date(event.time).getTime();
-    const now = Date.now();
-    const diff = eventTime - now;
+  const eventTime = new Date(event.time);
+  const now = new Date();
+  const diff = eventTime.getTime() - now.getTime();
 
-    if (diff <= 0) return 'Started';
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}h ${mins}m left`;
-  };
+  if (isNaN(eventTime.getTime()) || diff <= 0) return 'Started';
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+  const weekday = eventTime.toLocaleDateString('en-US', { weekday: 'short' }); // "Mon", "Tue", etc.
+
+  const parts = [];
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0 || days > 0) parts.push(`${hours}h`);
+  parts.push(`${mins}m`);
+
+  return `${weekday} • ${parts.join(' ')} left`;  // <== kết quả ví dụ: "Tue • 1d 2h 30m left"
+};
+
   
   const getFormattedDate = () => {
     const date = new Date(event.time);

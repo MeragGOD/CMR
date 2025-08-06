@@ -42,6 +42,75 @@ badgeText: {
     color: '#1A73E8',
     fontWeight: '600',
   },
+  sidebar: {
+    flex: 1,
+    paddingTop: 40,
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+    width: 260, // nhỏ gọn theo đúng thiết kế
+  },
+  logo: {
+    width: 40,
+    height: 40,
+    alignSelf: 'center',
+    marginBottom: 24,
+  },
+  menu: {
+    flexGrow: 1,
+  },
+  menuLabel: {
+  fontSize: 16,
+  color: '#000',
+  fontWeight: '500',
+  marginLeft: 12,
+},
+
+menuLabelActive: {
+  color: '#2979FF',
+  fontWeight: 'bold',
+},
+
+menuIcon: {
+  width: 22,
+  alignItems: 'center',
+},
+
+menuItem: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingVertical: 12,
+  paddingHorizontal: 20,
+  borderRadius: 10,
+},
+
+menuItemActive: {
+  backgroundColor: '#E0F0FF',
+},
+
+supportButton: {
+  backgroundColor: '#2979FF',
+  paddingVertical: 10,
+  marginHorizontal: 20,
+  borderRadius: 8,
+  marginTop: 10,
+  alignItems: 'center',
+},
+
+supportText: {
+  color: '#fff',
+  fontWeight: '600',
+},
+
+logoutButton: {
+  marginTop: 10,
+  marginLeft: 20,
+},
+
+logoutText: {
+  color: '#888',
+  fontSize: 14,
+},
+
   dateRangeBox: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -296,38 +365,9 @@ priorityBadge: {
     marginBottom: 12,
     elevation: 2,
   },
-
   // --- AppLayout shared sidebar + topbar ---
-  sidebar: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: width * 0.75,
-    backgroundColor: '#fff',
-    zIndex: 10,
-    elevation: 6,
-    borderTopRightRadius: 24,
-    borderBottomRightRadius: 24,
-    paddingTop: 50,
-  },
   sidebarContent: {
     padding: 20,
-  },
-  menuItem: {
-    fontSize: 16,
-    marginVertical: 10,
-    color: '#444',
-  },
-  supportButton: {
-    backgroundColor: PRIMARY_COLOR,
-    padding: 12,
-    borderRadius: 12,
-    marginTop: 30,
-    alignItems: 'center',
-  },
-  supportText: {
-    color: '#fff',
-    fontWeight: '600',
   },
   logout: {
     marginTop: 24,

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 
 type Level = 'Intern' | 'Junior' | 'Middle' | 'Senior';
 
@@ -54,20 +55,31 @@ const EmployeeList = ({
   const [selectedEmployee, setSelectedEmployee] = useState<any | null>(null);
   const [actionModalVisible, setActionModalVisible] = useState(false);
 
-  // Đồng bộ props -> state hiển thị, đảm bảo currentUser lên đầu
-  useEffect(() => {
-    const filteredEmployees = employees.filter(
-      (emp) => emp.email !== currentUser?.email
-    );
-    const displayList = currentUser
-      ? [currentUser, ...filteredEmployees]
-      : employees;
-    setList(displayList);
-  }, [employees, currentUser]);
-
   const membersKey = useMemo(() => {
     return currentUser?.email ? `members_${currentUser.email}` : null;
   }, [currentUser?.email]);
+  
+  // Đồng bộ props -> state hiển thị, đảm bảo currentUser lên đầu
+  useFocusEffect(
+  useCallback(() => {
+    const refreshFromStorage = async () => {
+      if (!membersKey) return;
+
+      const stored = await AsyncStorage.getItem(membersKey);
+      const members = stored ? JSON.parse(stored) : [];
+
+      // Gộp lại danh sách: currentUser lên đầu
+      const filtered = members.filter((m: any) => m.email !== currentUser?.email);
+      const fullList = currentUser ? [currentUser, ...filtered] : members;
+      setList(fullList);
+    };
+
+    refreshFromStorage();
+  }, [membersKey, currentUser])
+);
+
+
+  
 
   const openActions = (emp: any) => {
     setSelectedEmployee(emp);

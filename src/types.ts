@@ -20,5 +20,6 @@ export type RootStackParamList = {
   TaskDetails: { projectId: string; taskId: string };
   InfoPortalScreen: undefined;
   TaskOverviewScreen: { project: any; taskId: string | null };
-  SettingsScreen: undefined
+  SettingsScreen: undefined;
+  Main: undefined;
 };

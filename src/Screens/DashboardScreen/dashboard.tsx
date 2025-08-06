@@ -32,6 +32,12 @@ export default function DashboardScreen() {
   const formatDate = (date: Date): string =>
     date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const dateRangeLabel = `${formatDate(startOfMonth)} – ${formatDate(endOfMonth)}`;
+  const getFullName = (u: any) => {
+  if (!u) return '';
+  if (typeof u.fullName === 'string') return u.fullName;
+  return u.fullName?.name || '';
+};
+
 
   const enrichTasksWithUserInfo = (tasks: any[], users: any[]) => {
     return tasks.map(task => {
@@ -78,7 +84,7 @@ export default function DashboardScreen() {
             return {
               ...member,
               ...profile,
-              name: member.name || profile.name || member.email.split('@')[0],
+              name: member.name || getFullName(profile) || member.email.split('@')[0],
               avatar: member.avatar || profile.avatar || '',
               position: member.position || profile.position || 'Employee',
               level: member.level || profile.level || 'Junior',

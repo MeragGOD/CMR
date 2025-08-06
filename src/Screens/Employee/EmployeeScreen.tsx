@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppLayout from '../../components/AppLayout';
 import EmployeeList from './EmployeeList';
 import EmployeeActivity from './EmployeeActivity';
+import { useFocusEffect } from '@react-navigation/native';
 
 const EmployeeScreen = () => {
   const [employees, setEmployees] = useState<any[]>([]);
@@ -11,7 +12,7 @@ const EmployeeScreen = () => {
   const [activeTab, setActiveTab] = useState<'list' | 'activity'>('list');
   
 
-  useEffect(() => {
+  useFocusEffect(() => {
     const fetchEmployees = async () => {
       const currentStr = await AsyncStorage.getItem('currentUser');
       const allUsersStr = await AsyncStorage.getItem('users');
@@ -38,7 +39,7 @@ const EmployeeScreen = () => {
     };
 
     fetchEmployees();
-  }, []);
+  },);
 
   return (
     <AppLayout>

@@ -17,33 +17,34 @@ interface Props {
 const EmployeeActivity = ({ employees }: Props) => {
   const [taskStats, setTaskStats] = useState<Record<string, { backlog: number; inProgress: number; inReview: number }>>({});
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      const stats: Record<string, { backlog: number; inProgress: number; inReview: number }> = {};
-      const projectsStr = await AsyncStorage.getItem('projects');
-      const projects = projectsStr ? JSON.parse(projectsStr) : [];
+  useFocusEffect(() => {
+  const fetchStats = async () => {
+    const stats: Record<string, { backlog: number; inProgress: number; inReview: number }> = {};
+    const projectsStr = await AsyncStorage.getItem('projects');
+    const projects = projectsStr ? JSON.parse(projectsStr) : [];
 
-      projects.forEach((project: any) => {
-        (project.tasks || []).forEach((task: Task) => {
-          const email = task.assignee;
-          if (!email) return;
+    projects.forEach((project: any) => {
+      (project.tasks || []).forEach((task: Task) => {
+        const email = task.assignee;
+        if (!email) return;
 
-          if (!stats[email]) {
-            stats[email] = { backlog: 0, inProgress: 0, inReview: 0 };
-          }
+        if (!stats[email]) {
+          stats[email] = { backlog: 0, inProgress: 0, inReview: 0 };
+        }
 
-          const estimateVal = parseFloat(task.estimate || '0');
-          if (task.status === 'To Do' && estimateVal < 1) stats[email].backlog++;
-          else if (task.status === 'In Progress') stats[email].inProgress++;
-          else if (task.status === 'In Review') stats[email].inReview++;
-        });
+        const estimateVal = parseFloat(task.estimate || '0');
+        if (task.status === 'To Do' && estimateVal < 1) stats[email].backlog++;
+        else if (task.status === 'In Progress') stats[email].inProgress++;
+        else if (task.status === 'In Review') stats[email].inReview++;
       });
+    });
 
-      setTaskStats(stats);
-    };
+    setTaskStats(stats);
+  };
 
-    fetchStats();
-  }, []);
+  fetchStats();
+});
+
 
   const renderItem = ({ item }: { item: any }) => {
     const stats = taskStats[item.email] || { backlog: 0, inProgress: 0, inReview: 0 };
@@ -93,6 +94,7 @@ const EmployeeActivity = ({ employees }: Props) => {
 export default EmployeeActivity;
 
 import AsyncStorage from '@react-native-async-storage/async-storage'; // đặt ở đầu file
+import { useFocusEffect } from '@react-navigation/native';
 
 const styles = StyleSheet.create({
   card: {

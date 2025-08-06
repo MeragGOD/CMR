@@ -10,7 +10,7 @@ import {
   TextInput,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppLayout from '../../components/AppLayout';
 
@@ -47,7 +47,7 @@ export default function ProjectDetailsScreen() {
   const [enrichedTasks, setEnrichedTasks] = useState<Task[]>([]);
 
 
-  useEffect(() => {
+  useFocusEffect(() => {
     const fetchUsers = async () => {
       const usersStr = await AsyncStorage.getItem('users');
       const users = usersStr ? JSON.parse(usersStr) : [];
@@ -65,7 +65,7 @@ export default function ProjectDetailsScreen() {
       setEnrichedTasks(enriched);
     };
     fetchUsers(); 
-  }, []);
+  },);
   
 
 
