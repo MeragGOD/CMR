@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -15,20 +15,16 @@ import { Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 
 type Level = 'Intern' | 'Junior' | 'Middle' | 'Senior';
-
 const LEVELS: Level[] = ['Intern', 'Junior', 'Middle', 'Senior'];
 
 const getAge = (birthday: string) => {
   if (!birthday) return '-';
-
   let birthDate: Date;
   if (birthday.includes('/')) {
     const parts = birthday.split('/');
     if (parts.length !== 3) return '-';
     const [month, day, year] = parts;
-    birthDate = new Date(
-      `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
-    );
+    birthDate = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
   } else {
     birthDate = new Date(birthday);
   }
@@ -50,7 +46,6 @@ const EmployeeList = ({
   employees: any[];
   currentUser: any;
 }) => {
-  // Local state để UI cập nhật ngay sau khi chỉnh sửa
   const [list, setList] = useState<any[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<any | null>(null);
   const [actionModalVisible, setActionModalVisible] = useState(false);
@@ -58,28 +53,47 @@ const EmployeeList = ({
   const membersKey = useMemo(() => {
     return currentUser?.email ? `members_${currentUser.email}` : null;
   }, [currentUser?.email]);
-  
-  // Đồng bộ props -> state hiển thị, đảm bảo currentUser lên đầu
+
   useFocusEffect(
-  useCallback(() => {
-    const refreshFromStorage = async () => {
-      if (!membersKey) return;
+    useCallback(() => {
+      const refreshFromStorage = async () => {
+  if (!membersKey) return;
 
-      const stored = await AsyncStorage.getItem(membersKey);
-      const members = stored ? JSON.parse(stored) : [];
+  const stored = await AsyncStorage.getItem(membersKey);
+  const members = stored ? JSON.parse(stored) : [];
 
-      // Gộp lại danh sách: currentUser lên đầu
-      const filtered = members.filter((m: any) => m.email !== currentUser?.email);
-      const fullList = currentUser ? [currentUser, ...filtered] : members;
-      setList(fullList);
-    };
+  const currentStr = await AsyncStorage.getItem('currentUser');
+  const allUsersStr = await AsyncStorage.getItem('users');
 
-    refreshFromStorage();
-  }, [membersKey, currentUser])
-);
+  const current = currentStr ? JSON.parse(currentStr) : null;
+  const allUsers = allUsersStr ? JSON.parse(allUsersStr) : [];
+
+  // 🔥 Enrich currentUser bằng profile từ users
+  const enrichedCurrent = allUsers.find((u: any) => u.email === current?.email);
+  const fullCurrent = enrichedCurrent ? { ...current, ...enrichedCurrent } : current;
+
+  const enrich = (user: any) => {
+  const profile = allUsers.find((u: any) => u.email === user.email);
+  return {
+    ...user,
+    ...profile,
+    level: user.level || 'Intern',
+  };
+};
+
+const filtered = members.filter((m: any) => m.email !== fullCurrent?.email);
+const fullList = fullCurrent
+  ? [enrich(fullCurrent), ...filtered.map(enrich)]
+  : members.map(enrich);
+
+setList(fullList);
+};
 
 
-  
+
+      refreshFromStorage();
+    }, [membersKey, currentUser])
+  );
 
   const openActions = (emp: any) => {
     setSelectedEmployee(emp);
@@ -98,18 +112,25 @@ const EmployeeList = ({
       const raw = await AsyncStorage.getItem(membersKey);
       const members = raw ? JSON.parse(raw) : [];
 
-      // Cập nhật level trong storage
-      const updatedMembers = members.map((m: any) =>
-        m?.email === email ? { ...m, level: newLevel } : m
-      );
-      await AsyncStorage.setItem(membersKey, JSON.stringify(updatedMembers));
-
-      // Cập nhật ngay UI
-      setList((prev) =>
-        prev.map((emp) =>
-          emp.email === email ? { ...emp, level: newLevel } : emp
-        )
-      );
+      if (email === currentUser?.email) {
+        const updatedUser = { ...currentUser, level: newLevel };
+        await AsyncStorage.setItem('currentUser', JSON.stringify(updatedUser));
+        setList((prev) =>
+          prev.map((emp) =>
+            emp.email === email ? { ...emp, level: newLevel } : emp
+          )
+        );
+      } else {
+        const updatedMembers = members.map((m: any) =>
+          m?.email === email ? { ...m, level: newLevel } : m
+        );
+        await AsyncStorage.setItem(membersKey, JSON.stringify(updatedMembers));
+        setList((prev) =>
+          prev.map((emp) =>
+            emp.email === email ? { ...emp, level: newLevel } : emp
+          )
+        );
+      }
 
       closeActions();
     } catch (e) {
@@ -138,9 +159,7 @@ const EmployeeList = ({
       const updatedMembers = members.filter((m: any) => m?.email !== email);
       await AsyncStorage.setItem(membersKey, JSON.stringify(updatedMembers));
 
-      // Cập nhật ngay UI (giữ currentUser ở đầu nếu có)
       setList((prev) => prev.filter((emp) => emp.email !== email));
-
       closeActions();
     } catch (e) {
       console.warn('kickEmployee error:', e);
@@ -149,7 +168,6 @@ const EmployeeList = ({
 
   const renderEmployeeCard = ({ item }: { item: any }) => {
     const isSelf = item.email === currentUser?.email;
-
     return (
       <View style={styles.card}>
         <View style={styles.rowBetween}>
@@ -163,7 +181,9 @@ const EmployeeList = ({
               style={styles.avatar}
             />
             <View>
-              <Text style={styles.name}>{item.fullName || 'Unnamed'}</Text>
+              <Text style={styles.name}>
+                {item.fullName || 'Unnamed'} {isSelf ? '(You)' : ''}
+              </Text>
               <Text style={styles.email}>{item.email}</Text>
             </View>
           </View>
@@ -250,10 +270,8 @@ const EmployeeList = ({
               );
             })}
 
-            {/* Divider */}
             <View style={styles.modalDivider} />
 
-            {/* Kick (ẩn nếu là chính mình) */}
             {selectedEmployee?.email !== currentUser?.email && (
               <TouchableOpacity
                 style={[styles.modalOption, styles.kickOption]}
@@ -354,8 +372,6 @@ const styles = StyleSheet.create({
     color: '#1e88e5',
     fontWeight: '500',
   },
-
-  // Modal styles
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.35)',
