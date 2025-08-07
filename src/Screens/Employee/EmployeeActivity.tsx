@@ -1,6 +1,8 @@
 // components/EmployeeActivity.tsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, FlatList } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // đặt ở đầu file
+import { useFocusEffect } from '@react-navigation/native';
 
 const defaultAvatar = require('../../assets/profile.png');
 
@@ -93,9 +95,6 @@ const EmployeeActivity = ({ employees }: Props) => {
 
 export default EmployeeActivity;
 
-import AsyncStorage from '@react-native-async-storage/async-storage'; // đặt ở đầu file
-import { useFocusEffect } from '@react-navigation/native';
-
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
@@ -160,3 +159,4 @@ const styles = StyleSheet.create({
     color: '#666',
   },
 });
+
